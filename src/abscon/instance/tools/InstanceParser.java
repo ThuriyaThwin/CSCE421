@@ -1,5 +1,7 @@
 package abscon.instance.tools;
 
+import geek.nerd.csp.ArcConsistency;
+
 import java.io.ObjectInputStream.GetField;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
@@ -132,6 +134,21 @@ public class InstanceParser {
 	public String getMinViolatedConstraints() {
 		return minViolatedConstraints;
 	}
+
+	
+	public String getProblemName() {
+		return problemName;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+
+	public PConstraint[] getConstraints() {
+		return constraints;
+	}
+
 
 	/**
 	 * Used to determine if elements of the instance must be displayed when parsing.
@@ -513,97 +530,6 @@ public class InstanceParser {
 		
 	}
 	
-	private void print(String algo, String fileName) {
-		System.out.println("Problem Name: "+problemName);
-		System.out.println("File Name: " + fileName + "\n");
-		ArcConsistency ac = new ArcConsistency(variables, constraints);
-		boolean finished = false;
-		if (algo.equalsIgnoreCase("-aAC3")) {
-			System.out.println("Running AC-3 \n");
-
-			finished = ac.arcConsistencyThree();
-			if (finished) {
-				System.out.printf("%-13s %-5d %n", "#cc : " , ac.getNumOfCC());
-				System.out.printf("%-13s %-5.3f %n", "time-setup : " , (ac.getSetupTime() + (double)this.setupTime/1300000));
-				System.out.printf("%-13s %-5.3f %n", "cpu" , ac.getCpu());
-				System.out.printf("%-13s %-5d %n", "fval : " , ac.getFval());
-				System.out.printf("%-13s %-5.3f %n", "iSize: " , ac.getISize());
-				System.out.printf("%-13s %-5.3f %n", "fSize : " , ac.getFSize());
-				System.out.printf("%-13s %-5.3f %n", "fEffect : " , ac.getFEffect());
-			
-/*				for (PVariable variable : variables) {
-					variable.setNeighborVariables();
-					System.out.println(variable);
-				}*/
-			} else {
-				//long endTime = this.getCpuTime();
-				System.out.printf("Domain wiped out! %n");
-				System.out.printf("%-13s %-5d %n", "#cc : " , ac.getNumOfCC());
-				System.out.printf("%-13s %-5.3f %n", "time-setup : " , (ac.getSetupTime() + (double)this.setupTime/1300000));
-				System.out.printf("%-13s %-5.3f %n", "cpu" , ac.getCpu());
-				System.out.printf("%-13s %-5d %n", "fval : " , ac.getFval());
-				System.out.printf("%-13s %-5.3f %n", "iSize : " , ac.getISize());
-				System.out.println("fSize : UNDEFINED");
-				System.out.println("fEffect : UNDEFINED");
-			}
-		}else if (algo.equalsIgnoreCase("-aAC1")) {
-			System.out.println("Running AC-1");
-			finished = ac.arcConsistencyOne();
-			if (finished) {
-				System.out.printf("%-13s %-5d %n", "#cc : " , ac.getNumOfCC());
-				System.out.printf("%-13s %-5.3f %n", "time-setup : " , (ac.getSetupTime() + (double)this.setupTime/1300000));
-				System.out.printf("%-13s %-5.3f %n", "cpu" , ac.getCpu());
-				System.out.printf("%-13s %-5d %n", "fval : " , ac.getFval());
-				System.out.printf("%-13s %-5.3f %n", "iSize: " , ac.getISize());
-				System.out.printf("%-13s %-5.3f %n", "fSize : " , ac.getFSize());
-				System.out.printf("%-13s %-5.3f %n", "fEffect : " , ac.getFEffect());
-			
-/*				for (PVariable variable : variables) {
-					variable.setNeighborVariables();
-					System.out.println(variable);
-				}*/
-			} else {
-				System.out.printf("Domain wiped out! %n");
-				System.out.printf("%-13s %-5d %n", "#cc : " , ac.getNumOfCC());
-				System.out.printf("%-13s %-5.3f %n", "time-setup : " , (ac.getSetupTime() + (double)this.setupTime/1300000));
-				System.out.printf("%-13s %-5.3f %n", "cpu" , ac.getCpu());
-				System.out.printf("%-13s %-5d %n", "fval : " , ac.getFval());
-				System.out.printf("%-13s %-5.3f %n", "iSize : " , ac.getISize());
-				System.out.println("fSize : UNDEFINED");
-				System.out.println("fEffect : UNDEFINED");
-			}
-		}else{
-			System.out.println("Please check the argument you entered!");
-		}
-/*		
-		System.out.println("===================================================================");
-		System.out.println("\nThere are "+constraints.length+" constraints in the problem.");
-		for (PConstraint constraint : constraints) {
-			System.out.println(constraint);
-		}*/
-	}
-	
-	/** Get CPU time in nanoseconds. */
-	public long getCpuTime() {
-	    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-	    return bean.isCurrentThreadCpuTimeSupported( ) ?
-	        bean.getCurrentThreadCpuTime() : 0L;
-	}
-	 
-	/** Get user time in nanoseconds. */
-	public long getUserTime() {
-	    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-	    return bean.isCurrentThreadCpuTimeSupported() ?
-	        bean.getCurrentThreadUserTime() : 0L;
-	}
-
-	/** Get system time in nanoseconds. */
-	public long getSystemTime() {
-	    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-	    return bean.isCurrentThreadCpuTimeSupported() ?
-	        (bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()) : 0L;
-	}
-	
 	/**
 	 * Parse the DOM object that has been loaded.
 	 * 
@@ -621,18 +547,7 @@ public class InstanceParser {
 	}
 
 	public static void main(String[] args) {
-		if (args.length != 3) {
-			System.out.println("InstanceParser " + VERSION);
-			System.out.println("Usage : java ... InstanceParser <instanceName>");
-			System.exit(1);
-		}
-		
-		InstanceParser parser = new InstanceParser();
-		long startTime = parser.getCpuTime();
-		parser.loadInstance(args[2]);
-		parser.parse(true);
-		long endTime = parser.getCpuTime();
-		parser.setupTime = endTime - startTime;
-		parser.print(args[0], args[2]);
+		System.out.println("Instance Parser class is now being used as a parsing tool.");
+		System.out.println("Please make sure you run the correct class.");
 	}
 }

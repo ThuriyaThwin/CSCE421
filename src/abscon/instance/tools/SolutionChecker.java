@@ -149,7 +149,7 @@ public class SolutionChecker {
 
 		System.out.println("solutionCost " + sum);
 		System.out.println("listOfUnsatisfiedConstraints " + list);
-		System.exit(0);
+		//System.exit(0);
 	}
 
 	public SolutionChecker(String instanceFileName) {
