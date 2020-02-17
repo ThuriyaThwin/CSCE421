@@ -1,4 +1,4 @@
 CSP solver is based on the CSP parser written by christophe lecoutre.
 Some classes have been tweaked for the solver purpose and ArcConsistency has been implemented.
 
-The class resource can be found at https://cse.unl.edu/~choueiry/F15-421-821/homework.html
+The homework class resource can be found at https://cse.unl.edu/~choueiry/F15-421-821/homework.html
